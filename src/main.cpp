@@ -29,16 +29,26 @@ bool changeView(sf::View& view) {
 
 int main(int argc, char* argv[]) {
     try {
+        if (argc == 1) {
+            throw std::runtime_error("Failed to get configuration");
+        }
+
         Config config(argv[1]);
+        bool stop = false;
+
         auto gridSize = config.getGridSize();
         auto rule = config.getRule();
         auto state = config.getInitialState();
+        auto delay = sf::milliseconds(config.getDelay());
 
         sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Cellular automata");
         window.setVerticalSyncEnabled(true);
 
         sf::View view(window.getDefaultView());
+        sf::Clock clock;
+
         Simulation simulation(gridSize, rule, state, CELL_SIZE);
+        simulation.buildCells();
 
         while (window.isOpen()) {
             sf::Event event;
@@ -49,11 +59,21 @@ int main(int argc, char* argv[]) {
                 } else if (event.type == sf::Event::Resized) {
                     view.reset(sf::FloatRect(0.f, 0.f, event.size.width, event.size.height));
                     window.setView(view);
+                } else if (event.type == sf::Event::KeyPressed) {
+                    if (event.key.code == sf::Keyboard::Space) {
+                        stop = !stop;
+                    }
                 }
             }
 
             if (changeView(view)) {
                 window.setView(view);
+            }
+
+            if (!stop && clock.getElapsedTime() > delay) {
+                simulation.nextState();
+                simulation.buildCells();
+                clock.restart();
             }
 
             window.clear();

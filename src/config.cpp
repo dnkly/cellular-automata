@@ -48,7 +48,7 @@ std::vector<bool> Config::getInitialState() {
 
     auto gridSize = getGridSize();
 
-    if (x.value() > gridSize.cols || y.value() > gridSize.rows) {
+    if (x.value() + 2 > gridSize.cols || y.value() + 2 > gridSize.rows) {
         throw std::runtime_error("Failed to create initial state");
     }
 
@@ -84,4 +84,14 @@ std::vector<bool> Config::getInitialState() {
     }
 
     return initialState;
+}
+
+uint Config::getDelay() {
+    auto delay = table_["delay"].value<uint>();
+
+    if (!delay.has_value()) {
+        throw std::runtime_error("Failed to parse delay");
+    }
+
+    return delay.value();
 }

@@ -1,3 +1,5 @@
+delay = 200
+
 [grid]
 rows = 30
 cols = 50

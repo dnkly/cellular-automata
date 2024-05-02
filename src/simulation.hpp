@@ -16,7 +16,7 @@ private:
     std::vector<sf::RectangleShape> cells_;
 
     std::vector<sf::Vertex> buildGrid();
-    void buildCells();
+    uint countNeighbors(uint i, uint j);
 public:
     Simulation(
         const GridSize& gridSize,
@@ -30,4 +30,7 @@ public:
 
     void drawGrid(sf::RenderWindow& window);
     void drawCells(sf::RenderWindow& window);
+
+    void buildCells();
+    void nextState();
 };

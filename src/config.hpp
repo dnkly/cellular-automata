@@ -32,4 +32,5 @@ public:
     Rule getRule();
 
     std::vector<bool> getInitialState();
+    uint getDelay();
 };
