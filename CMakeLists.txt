@@ -7,11 +7,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_compile_options(-Wall -Wextra)
 
-find_package(SFML 2.5.1 COMPONENTS graphics REQUIRED)
+find_package(SFML COMPONENTS graphics REQUIRED)
+find_package(tomlplusplus REQUIRED)
 
 add_executable(
   cellular-automata
+  src/simulation.cpp
+  src/config.cpp
   src/main.cpp
 )
 
 target_link_libraries(cellular-automata PRIVATE sfml-graphics)
+target_link_libraries(cellular-automata PRIVATE tomlplusplus)

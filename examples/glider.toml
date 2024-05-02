@@ -1,0 +1,14 @@
+delay = 200
+
+[grid]
+rows = 30
+cols = 50
+
+[rule]
+B = [3]
+S = [2, 3]
+
+[pattern]
+x = 3
+y = 3
+code = "bob$2bo$3o!"
