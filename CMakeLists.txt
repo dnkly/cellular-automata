@@ -12,6 +12,7 @@ find_package(tomlplusplus REQUIRED)
 
 add_executable(
   cellular-automata
+  src/simulation.cpp
   src/config.cpp
   src/main.cpp
 )
