@@ -5,7 +5,7 @@
 
 constexpr uint WIDTH = 1280;
 constexpr uint HEIGHT = 960;
-constexpr uint CELL_SIZE = 50;
+constexpr uint CELL_SIZE = 20;
 
 bool changeView(sf::View& view) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Dash)) {
@@ -27,6 +27,16 @@ bool changeView(sf::View& view) {
     return true;
 }
 
+void editorMode(Simulation& simulation, sf::RenderWindow& window) {
+    bool leftButtonPressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+    bool rightButtonPressed = sf::Mouse::isButtonPressed(sf::Mouse::Right);
+
+    if (leftButtonPressed || rightButtonPressed) {
+        auto pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+        simulation.setCell(pos, leftButtonPressed && !rightButtonPressed);
+    }
+}
+
 int main(int argc, char* argv[]) {
     try {
         if (argc == 1) {
@@ -34,7 +44,7 @@ int main(int argc, char* argv[]) {
         }
 
         Config config(argv[1]);
-        bool stop = false;
+        bool stop = true;
 
         auto gridSize = config.getGridSize();
         auto rule = config.getRule();
@@ -45,10 +55,17 @@ int main(int argc, char* argv[]) {
         window.setVerticalSyncEnabled(true);
 
         sf::View view(window.getDefaultView());
-        sf::Clock clock;
+        view.setCenter(
+            (gridSize.cols / 2) * CELL_SIZE,
+            (gridSize.rows / 2) * CELL_SIZE
+        );
+        window.setView(view);
 
         Simulation simulation(gridSize, rule, state, CELL_SIZE);
-        simulation.buildCells();
+        sf::Clock clock;
+
+        system("clear");
+        std::cout << config.convertToPattern(state);
 
         while (window.isOpen()) {
             sf::Event event;
@@ -57,11 +74,18 @@ int main(int argc, char* argv[]) {
                 if (event.type == sf::Event::Closed) {
                     window.close();
                 } else if (event.type == sf::Event::Resized) {
-                    view.reset(sf::FloatRect(0.f, 0.f, event.size.width, event.size.height));
+                    view.setSize(event.size.width, event.size.height);
                     window.setView(view);
                 } else if (event.type == sf::Event::KeyPressed) {
                     if (event.key.code == sf::Keyboard::Space) {
                         stop = !stop;
+                    }
+
+                    if (stop && event.key.code == sf::Keyboard::P) {
+                        auto& state = simulation.getState();
+
+                        system("clear");
+                        std::cout << config.convertToPattern(state);
                     }
                 }
             }
@@ -70,9 +94,12 @@ int main(int argc, char* argv[]) {
                 window.setView(view);
             }
 
+            if (stop) {
+                editorMode(simulation, window);
+            }
+
             if (!stop && clock.getElapsedTime() > delay) {
                 simulation.nextState();
-                simulation.buildCells();
                 clock.restart();
             }
 
