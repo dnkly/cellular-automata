@@ -4,7 +4,7 @@ std::vector<sf::Vertex> Simulation::buildGrid() {
     uint vertexCount = (rows_ + cols_ + 2) * 2;
 
     std::vector<sf::Vertex> grid(vertexCount);
-    sf::Color color(20, 20, 20);
+    sf::Color color(200, 200, 200);
 
     uint k = 0;
 
@@ -36,6 +36,7 @@ std::vector<sf::RectangleShape> Simulation::buildCells() {
         for (uint j = 0; j < cols_; ++j) {
             cells[idx(i, j)].setPosition(j * cellSize_, i * cellSize_);
             cells[idx(i, j)].setSize(sf::Vector2f(cellSize_, cellSize_));
+            cells[idx(i, j)].setFillColor(sf::Color::Black);
         }
     }
 
@@ -106,4 +107,8 @@ void Simulation::setCell(const sf::Vector2f& pos, bool value) {
             break;
         }
     }
+}
+
+void Simulation::setState(const std::vector<bool>& state) {
+    state_.assign(state.cbegin(), state.cend());
 }

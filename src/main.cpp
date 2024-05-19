@@ -87,6 +87,10 @@ int main(int argc, char* argv[]) {
                         system("clear");
                         std::cout << config.convertToPattern(state);
                     }
+
+                    if (stop && event.key.code == sf::Keyboard::O) {
+                        simulation.setState(state);
+                    }
                 }
             }
 
@@ -103,7 +107,7 @@ int main(int argc, char* argv[]) {
                 clock.restart();
             }
 
-            window.clear();
+            window.clear(sf::Color::White);
             simulation.drawGrid(window);
             simulation.drawCells(window);
             window.display();

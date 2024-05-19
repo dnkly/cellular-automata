@@ -45,5 +45,6 @@ public:
     const std::vector<bool>& getState();
 
     void setCell(const sf::Vector2f& pos, bool value);
+    void setState(const std::vector<bool>& state);
     void nextState();
 };
