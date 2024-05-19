@@ -1,5 +1,26 @@
 #include "config.hpp"
 
+std::ostream& operator<<(std::ostream& os, const Pattern& pattern) {
+    os  << "[pattern]\n"
+        << "x = " << pattern.x << '\n'
+        << "y = " << pattern.y << '\n'
+        << "code = \"" << pattern.code << "\"\n";
+
+    return os;
+}
+
+Pattern& Pattern::operator=(const Pattern& pattern) {
+    if (this == &pattern) {
+        return *this;
+    }
+
+    x = pattern.x;
+    y = pattern.y;
+    code = pattern.code;
+
+    return *this;
+}
+
 GridSize Config::getGridSize() {
     auto rows = table_["grid"]["rows"].value<uint>();
     auto cols = table_["grid"]["cols"].value<uint>();
@@ -94,4 +115,73 @@ uint Config::getDelay() {
     }
 
     return delay.value();
+}
+
+Pattern Config::convertToPattern(const std::vector<bool>& state) {
+    auto gridSize = getGridSize();
+
+    uint x_min = gridSize.cols - 1;
+    uint x_max = 0;
+    uint y_min = gridSize.rows - 1;
+    uint y_max = 0;
+
+    for (uint i = 0; i < gridSize.rows; ++i) {
+        for (uint j = 0; j < gridSize.cols; ++j) {
+            uint k = (gridSize.cols * i) + j;
+
+            if (!state[k]) {
+                continue;
+            }
+
+            if (i < y_min) y_min = i;
+            if (i > y_max) y_max = i;
+
+            if (j < x_min) x_min = j;
+            if (j > x_max) x_max = j;
+        }
+    }
+
+    if (x_max < x_min || y_max < y_min) {
+        return Pattern(0, 0, "");
+    }
+
+    uint x = x_max - x_min + 1;
+    uint y = y_max - y_min + 1;
+
+    std::string code;
+    uint count = 1;
+
+    for (uint i = y_min; i <= y_max; ++i) {
+        bool prev = state[(gridSize.cols * i) + x_min];
+
+        for (uint j = x_min + 1; j <= x_max; ++j) {
+            uint k = (gridSize.cols * i) + j;
+
+            if (state[k] == prev) {
+                ++count;
+                continue;
+            }
+
+            if (count > 1) {
+                code += std::to_string(count);
+            }
+
+            code += prev ? 'o' : 'b';
+            prev = state[k];
+            count = 1;
+        }
+
+        if (prev) {
+            if (count > 1) {
+                code += std::to_string(count);
+            }
+
+            code += 'o';
+        }
+
+        code += i == y_max ? '!' : '$';
+        count = 1;
+    }
+
+    return Pattern(x, y, code);
 }

@@ -7,7 +7,8 @@
 
 class Simulation {
 private:
-    const GridSize gridSize_;
+    const uint rows_;
+    const uint cols_;
     const uint cellSize_;
     std::vector<sf::Vertex> grid_;
 
@@ -16,21 +17,34 @@ private:
     std::vector<sf::RectangleShape> cells_;
 
     std::vector<sf::Vertex> buildGrid();
+    std::vector<sf::RectangleShape> buildCells();
     uint countNeighbors(uint i, uint j);
+
+    inline uint idx(uint i, uint j) {
+        return (cols_ * i) + j;
+    }
 public:
     Simulation(
         const GridSize& gridSize,
         const Rule& rule,
         const std::vector<bool>& state,
         uint cellSize
-    ) : gridSize_(gridSize), cellSize_(cellSize), rule_(rule), state_(state) {
+    ) :
+        rows_(gridSize.rows),
+        cols_(gridSize.cols),
+        cellSize_(cellSize),
+        rule_(rule),
+        state_(state)
+    {
         grid_ = buildGrid();
-        cells_ = std::vector<sf::RectangleShape>(state.size());
+        cells_ = buildCells();
     }
 
     void drawGrid(sf::RenderWindow& window);
     void drawCells(sf::RenderWindow& window);
+    const std::vector<bool>& getState();
 
-    void buildCells();
+    void setCell(const sf::Vector2f& pos, bool value);
+    void setState(const std::vector<bool>& state);
     void nextState();
 };
