@@ -22,13 +22,14 @@ struct Rule {
 };
 
 struct Pattern {
-    const uint x;
-    const uint y;
-    const std::string code;
+    uint x;
+    uint y;
+    std::string code;
 
     Pattern(const uint x_, const uint y_, const std::string& code_) :
         x(x_), y(y_), code(code_) {}
 
+    Pattern& operator=(const Pattern& pattern);
     friend std::ostream& operator<<(std::ostream& os, const Pattern& pattern);
 };
 

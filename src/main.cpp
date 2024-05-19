@@ -7,6 +7,17 @@ constexpr uint WIDTH = 1280;
 constexpr uint HEIGHT = 960;
 constexpr uint CELL_SIZE = 20;
 
+void help(std::string program) {
+    std::cout
+        << "Usage: " << program << " [FILE]\n\n"
+        << "[Control]\n"
+        << "WASD     camera control\n"
+        << "+-       camera zoom\n"
+        << "Space    pause\n"
+        << "P        get pattern\n"
+        << "O        return to the initial state\n";
+}
+
 bool changeView(sf::View& view) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Dash)) {
         view.setSize(view.getSize() * 1.02f);
@@ -43,8 +54,14 @@ int main(int argc, char* argv[]) {
             throw std::runtime_error("Failed to get configuration");
         }
 
+        if (std::string(argv[1]) == "--help") {
+            help(argv[0]);
+            return 0;
+        }
+
         Config config(argv[1]);
         bool stop = true;
+        uint time = 0;
 
         auto gridSize = config.getGridSize();
         auto rule = config.getRule();
@@ -64,8 +81,7 @@ int main(int argc, char* argv[]) {
         Simulation simulation(gridSize, rule, state, CELL_SIZE);
         sf::Clock clock;
 
-        system("clear");
-        std::cout << config.convertToPattern(state);
+        Pattern pattern = config.convertToPattern(state);
 
         while (window.isOpen()) {
             sf::Event event;
@@ -83,16 +99,20 @@ int main(int argc, char* argv[]) {
 
                     if (stop && event.key.code == sf::Keyboard::P) {
                         auto& state = simulation.getState();
-
-                        system("clear");
-                        std::cout << config.convertToPattern(state);
+                        pattern = config.convertToPattern(state);
                     }
 
                     if (stop && event.key.code == sf::Keyboard::O) {
                         simulation.setState(state);
+                        time = 0;
                     }
                 }
             }
+
+            system("clear");
+            std::cout
+                << "[time]\n" << time << "\n"
+                << pattern;
 
             if (changeView(view)) {
                 window.setView(view);
@@ -105,6 +125,7 @@ int main(int argc, char* argv[]) {
             if (!stop && clock.getElapsedTime() > delay) {
                 simulation.nextState();
                 clock.restart();
+                time += 1;
             }
 
             window.clear(sf::Color::White);

@@ -9,6 +9,18 @@ std::ostream& operator<<(std::ostream& os, const Pattern& pattern) {
     return os;
 }
 
+Pattern& Pattern::operator=(const Pattern& pattern) {
+    if (this == &pattern) {
+        return *this;
+    }
+
+    x = pattern.x;
+    y = pattern.y;
+    code = pattern.code;
+
+    return *this;
+}
+
 GridSize Config::getGridSize() {
     auto rows = table_["grid"]["rows"].value<uint>();
     auto cols = table_["grid"]["cols"].value<uint>();
